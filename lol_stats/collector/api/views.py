@@ -7,4 +7,4 @@ from collector.api import serializers
 class SummonerViewSet(viewsets.ModelViewSet):
     queryset = models.Summoners.objects.all()
     serializer_class = serializers.SummonersSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
