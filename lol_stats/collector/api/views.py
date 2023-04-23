@@ -8,3 +8,6 @@ class SummonerViewSet(viewsets.ModelViewSet):
     queryset = models.Summoners.objects.all()
     serializer_class = serializers.SummonersSerializer
     permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request,*args,**kwargs)

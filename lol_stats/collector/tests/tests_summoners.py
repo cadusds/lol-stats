@@ -8,6 +8,11 @@ from rest_framework.test import APITestCase
 from collector.api.serializers import SummonersSerializer
 
 
+class SummonerTestCase(TestCase):
+
+    def setUp(self) -> None:
+        pass
+
 class SummonersAPITestCase(APITestCase):
 
     def setUp(self) -> None:
