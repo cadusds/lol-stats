@@ -1,6 +1,6 @@
 import os
 import requests
-
+import datetime
 
 class LeagueOfLegendsAPI:
 
@@ -18,4 +18,17 @@ class LeagueOfLegendsAPI:
     
     def get_summoner(self, summoner_name:str) -> dict:
         endpoint = self.BASE_ENDPOINT.format(route="br1") + f"summoner/v4/summoners/by-name/{summoner_name}"
-        return requests.get(endpoint,headers=self.headers).json()
+        rename_keys = {
+            "id": "summoner_id",
+            "accountId": "account_id",
+            "puuid": "puuid",
+            "name": "name",
+            "profileIconId": "profile_icon_id",
+            "revisionDate": "revision_date",
+            "summonerLevel": "summoner_level" 
+        }
+        response = requests.get(endpoint,headers=self.headers).json()
+        summonner_data = {rename_keys[k]:v for k,v in response.items()}
+        revision_date = datetime.datetime.fromtimestamp(summonner_data["revision_date"]/100)
+        summonner_data["revision_date"] = revision_date
+        return summonner_data
