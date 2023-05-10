@@ -27,8 +27,25 @@ class LeagueOfLegendsAPI:
             "revisionDate": "revision_date",
             "summonerLevel": "summoner_level" 
         }
-        response = requests.get(endpoint,headers=self.headers).json()
+        response = requests.get(endpoint,headers=self.headers)
+        if not response.ok:
+            raise Exception(response.status_code)
+        else:
+            response = response.json()
         summonner_data = {rename_keys[k]:v for k,v in response.items()}
         revision_date = datetime.datetime.fromtimestamp(summonner_data["revision_date"]/100)
         summonner_data["revision_date"] = revision_date
         return summonner_data
+
+    def get_all_matchs_by_summoner_puuid(self,puuid):
+        endpoint = self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/by-puuid/{puuid}/ids"
+        init_date = datetime.datetime(2021,6,16).timestamp()
+        data = {"count":100,"start":0,"startTime":int(init_date)}
+        response = list()
+        while True:
+            matchs = requests.get(endpoint,params=data,headers=self.headers).json()
+            response += matchs
+            if len(matchs) < 100:
+                break
+            data["start"] += 100
+        return [{"puuid":puuid, "match_id": match_id} for match_id in response]
