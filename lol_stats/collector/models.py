@@ -10,9 +10,9 @@ class SummonerManager(models.Manager):
 
 class Summoner(models.Model):
 
+    puuid = models.CharField(primary_key=True, editable=False, max_length=250)
     summoner_id = models.CharField(max_length=250)
     account_id = models.CharField(max_length=250)
-    puuid = models.UUIDField(primary_key=True, editable=False)
     name = models.CharField(max_length=250, unique=True)
     profile_icon_id = models.CharField(max_length=250)
     revision_date = models.DateTimeField()
@@ -25,8 +25,8 @@ class MatchManager(models.Manager):
     def create_all_matchs_by_puuid(self,puuid):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
         matchs = list()
+        summoner = Summoner.objects.get(puuid=puuid)
         for dct in matchs_data:
-            summoner = Summoner.objects.get(puuid=puuid)
             dct["puuid"] = summoner
             match = self.create(**dct)
             matchs.append(match)
@@ -35,7 +35,7 @@ class MatchManager(models.Manager):
 class Match(models.Model):
     
     puuid = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
-    match_id = models.CharField(max_length=250)
+    match_id = models.CharField(max_length=250,primary_key=True)
     
     objects = MatchManager()
 

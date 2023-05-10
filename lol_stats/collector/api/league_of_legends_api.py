@@ -2,6 +2,7 @@ import os
 import requests
 import datetime
 
+
 class LeagueOfLegendsAPI:
 
     BASE_ENDPOINT = "https://{route}.api.riotgames.com/lol/"
@@ -13,7 +14,7 @@ class LeagueOfLegendsAPI:
             "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
             "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
             "Origin": "https://developer.riotgames.com",
-            "X-Riot-Token": self.API_KEY
+            "X-Riot-Token": "RGAPI-982bd379-3931-4dae-9483-88fa1c696057"
         }
     
     def get_summoner(self, summoner_name:str) -> dict:
@@ -27,7 +28,11 @@ class LeagueOfLegendsAPI:
             "revisionDate": "revision_date",
             "summonerLevel": "summoner_level" 
         }
-        response = requests.get(endpoint,headers=self.headers).json()
+        response = requests.get(endpoint,headers=self.headers)
+        if not response.ok:
+            raise Exception(response.status_code)
+        else:
+            response = response.json()
         summonner_data = {rename_keys[k]:v for k,v in response.items()}
         revision_date = datetime.datetime.fromtimestamp(summonner_data["revision_date"]/100)
         summonner_data["revision_date"] = revision_date
@@ -36,9 +41,11 @@ class LeagueOfLegendsAPI:
     def get_all_matchs_by_summoner_puuid(self,puuid):
         endpoint = self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/by-puuid/{puuid}/ids"
         data = dict(count=100,start=0)
-        response = requests.get(endpoint,data=data,headers=self.headers).json()
-        while len(response) == 100:
-            data["start"] =+ 100
-            matchs = requests.get(endpoint,data=data,headers=self.headers).json()
-            response += matchs
-        return [{"puuid":puuid, "match_id": match_id} for match_id in response]
+        return requests.get(endpoint,data=data,headers=self.headers).json()
+        # while True:
+        #     data["start"] =+ 100
+        #     matchs = requests.get(endpoint,data=data,headers=self.headers).json()
+        #     response += matchs
+        #     if len(matchs) < 100:
+        #         break
+        # return [{"puuid":puuid, "match_id": match_id} for match_id in response]

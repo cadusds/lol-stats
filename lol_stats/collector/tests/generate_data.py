@@ -29,12 +29,13 @@ class GenerateData:
     
     def _build_match_response_data(self,last_response:bool=False):
         if last_response:
-            return [ "BR1_" + str(random.randint(2000000000,3000000000)) for _ in range(100)]
-        return [ "BR1_" + str(random.randint(2000000000,3000000000)) for _ in range(random.randint(1,99))]
+            return [ "BR1_" + str(x) for x in range(2000000000,2000000100)]
+        return [ "BR1_" + str(x) for x in range(2000000000,2000000099)]
         
     def build_lol_api_summoner_response(self,summoner_name):
         response = requests.Response()
         response._content = json.dumps(self._build_summoner_response_data(summoner_name)).encode('utf-8')
+        response.status_code = 200
         return response
     
     def build_lol_api_matchs_response(self,last_response=False):

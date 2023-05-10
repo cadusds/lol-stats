@@ -1,3 +1,4 @@
+import json
 from collector import models
 from rest_framework import viewsets, status, permissions
 from collector.api import serializers
@@ -16,7 +17,7 @@ class SummonerViewSet(viewsets.ModelViewSet):
             summoner = models.Summoner.objects.create(summoner_name)
         except IntegrityError:
             return Response({"error":f"The summoner {summoner_name} already exists."}, status=status.HTTP_400_BAD_REQUEST)
-        summoner = serializers.SummonerSerializer(summoner)
+        summoner = serializers.SummonerSerializer(summoner,context={'request':request})
         return Response(summoner.data,status=status.HTTP_201_CREATED)
 
 class MatchViesSet(viewsets.ModelViewSet):
@@ -31,6 +32,8 @@ class MatchViesSet(viewsets.ModelViewSet):
         except:
             return Response({"error":f"The summoner with name {name}, not exists"}, status=status.HTTP_400_BAD_REQUEST)
         matchs = models.Match.objects.create_all_matchs_by_puuid(summoner.puuid)
-        data = [serializers.MatchsSerializer(match) for match in matchs]
-        return Response(data={"data":data},status=status.HTTP_201_CREATED)
-        
+        data = list()
+        for match in matchs:
+            match = serializers.MatchsSerializer(match,context=dict(request=request)).data
+            data.append(match)
+        return Response(data={"data":json.dumps(data)},status=status.HTTP_201_CREATED)

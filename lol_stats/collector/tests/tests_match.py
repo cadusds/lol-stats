@@ -18,9 +18,6 @@ class MatchTestCase(TestCase):
         requests.get.return_value = GenerateData().build_lol_api_summoner_response("SummonerTest")
         self.summoner = Summoner.objects.create("SummonerTest")
     
-    def tearDown(self) -> None:
-        self.summoner.delete()
-    
     def test_create_all_matchs_by_puuid(self):
         matchs = Match.objects.create_all_matchs_by_puuid(puuid=self.summoner.puuid)
         self.assertIsInstance(matchs,list)
@@ -35,16 +32,10 @@ class MatchAPITestCase(APITestCase):
         requests.get.return_value = GenerateData().build_lol_api_summoner_response("SummonerTest")
         self.summoner = Summoner.objects.create("SummonerTest")
     
-    def tearDown(self) -> None:
-        self.summoner.delete()
-    
     def test_create(self):
-        requests.get = MagicMock()
-        mock_response = GenerateData().build_lol_api_matchs_response(True)
-        requests.get.return_value = mock_response
         url = reverse("match-list")
         response = self.client.post(url,data={"name":"SummonerTest"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # self.assertEqual(Summoner.objects.count(),1)
+        self.assertEqual(Summoner.objects.count(),1)
         # summoner = Summoner.objects.first()
         # self.assertEqual(summoner.name,summoner_name)
