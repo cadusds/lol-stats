@@ -34,8 +34,10 @@ class MatchAPITestCase(APITestCase):
     
     def test_create(self):
         url = reverse("match-list")
+        requests.post = MagicMock()
+        mock_response = GenerateData().build_lol_api_matchs_response
+        mock_responses = [mock_response(True),mock_response()]
+        requests.post.side_effect = mock_responses
         response = self.client.post(url,data={"name":"SummonerTest"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Summoner.objects.count(),1)
-        # summoner = Summoner.objects.first()
-        # self.assertEqual(summoner.name,summoner_name)
+        self.assertEqual(Match.objects.count(),7)

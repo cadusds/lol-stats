@@ -36,7 +36,7 @@ class LeagueOfLegendsAPITestCase(TestCase):
         expected_response = [{"puuid":puuid, "match_id": x} for x in list_match_ids]
         self.assertEqual(len(response),len(expected_response))
         self.assertEqual(requests.get.call_count,2)
-        requests.get.assert_called_with(f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids", params={"count":100,"start":100,"startTime":1623812400},headers=self.lol_api.headers)
+        requests.get.assert_called_with(f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids", params={"count":100,"start":100,"startTime":1623801600},headers=self.lol_api.headers)
     
     def list_all_matchs_ids(self,responses:list):
         matchs_ids = list()
