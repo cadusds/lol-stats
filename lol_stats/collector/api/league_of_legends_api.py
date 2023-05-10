@@ -2,7 +2,6 @@ import os
 import requests
 import datetime
 
-
 class LeagueOfLegendsAPI:
 
     BASE_ENDPOINT = "https://{route}.api.riotgames.com/lol/"
