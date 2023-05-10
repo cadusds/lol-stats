@@ -28,7 +28,7 @@ class MatchManager(models.Manager):
         summoner = Summoner.objects.get(puuid=puuid)
         for dct in matchs_data:
             dct["puuid"] = summoner
-            match = self.create(**dct)
+            match, _= self.update_or_create(**dct)
             matchs.append(match)
         return matchs    
         

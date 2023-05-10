@@ -36,4 +36,4 @@ class MatchViesSet(viewsets.ModelViewSet):
         for match in matchs:
             match = serializers.MatchsSerializer(match,context=dict(request=request)).data
             data.append(match)
-        return Response(data={"data":json.dumps(data)},status=status.HTTP_201_CREATED)
+        return Response(data={"data":data},status=status.HTTP_201_CREATED)
