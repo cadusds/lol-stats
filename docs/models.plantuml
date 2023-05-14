@@ -12,6 +12,7 @@ entity  Summoner{
 entity SummonerMatch{
  + id
  + puuid
+ + match_id
  + game_id
 }
 
@@ -33,7 +34,7 @@ entity Match{
 }
 
 entity MatchParticipantBasicStats{
- + summoner_match_id
+ + puuid
  + game_id
  + summoner_name
  + team_position
@@ -53,7 +54,7 @@ entity MatchParticipantBasicStats{
 }
 
 entity MatchParticipantChampionStats{
- + summoner_match_id
+ + puuid
  + game_id
  + champion_name
  + champ_experience
@@ -73,7 +74,7 @@ entity MatchParticipantChampionStats{
 }
 
 entity MatchParticipantStats{
- + summoner_match_id
+ + puuid
  + game_id
  + champion_name
  + total_damage_dealt
@@ -106,10 +107,10 @@ entity MatchParticipantStats{
 
 Summoner .. SummonerMatch
 SummonerMatch .. Match
-SummonerMatch .. MatchParticipantBasicStats
-SummonerMatch .. MatchParticipantStats
-SummonerMatch .. MatchParticipantChampionStats
 Match .. MatchParticipantBasicStats
 Match .. MatchParticipantStats
 Match .. MatchParticipantChampionStats
+Summoner .. MatchParticipantBasicStats
+Summoner .. MatchParticipantStats
+Summoner .. MatchParticipantChampionStats
 @enduml
