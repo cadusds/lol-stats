@@ -4,24 +4,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Summoners',
+            name="Summoners",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('summoner_id', models.CharField(max_length=250)),
-                ('account_id', models.CharField(max_length=250)),
-                ('puuid', models.CharField(max_length=250)),
-                ('name', models.CharField(max_length=250)),
-                ('profile_icon_id', models.CharField(max_length=250)),
-                ('revision_date', models.DateTimeField()),
-                ('summoner_level', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("summoner_id", models.CharField(max_length=250)),
+                ("account_id", models.CharField(max_length=250)),
+                ("puuid", models.CharField(max_length=250)),
+                ("name", models.CharField(max_length=250)),
+                ("profile_icon_id", models.CharField(max_length=250)),
+                ("revision_date", models.DateTimeField()),
+                ("summoner_level", models.IntegerField()),
             ],
         ),
     ]
