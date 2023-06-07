@@ -22,7 +22,7 @@ class GenerateData:
             puuid=str(uuid.uuid4()),
             name=summoner_name,
             profileIconId=str(uuid.uuid4()),
-            revisionDate=datetime.datetime.utcnow().timestamp() * 100,
+            revisionDate=datetime.datetime.utcnow().timestamp()*100,
             summonerLevel=random.randint(20, 300),
         )
 

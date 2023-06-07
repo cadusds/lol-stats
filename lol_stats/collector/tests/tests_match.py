@@ -53,3 +53,4 @@ class MatchAPITestCase(APITestCase):
     )
     def test_create_with_invalid_summoner(self, mocked):
         url = reverse("match-list")
+        self.client.post(url, data={"name": "test"})

@@ -9,14 +9,6 @@ from collector.tests.generate_data import GenerateData
 
 
 class LeagueOfLegendsAPITestCase(TestCase):
-    class MockResponseError:
-        def __init__(self) -> None:
-            self.ok = False
-            self.status_code = 400
-
-        def json(self):
-            return {}
-
     def setUp(self) -> None:
         self.maxDiff = None
         self.lol_api = LeagueOfLegendsAPI()
@@ -24,24 +16,30 @@ class LeagueOfLegendsAPITestCase(TestCase):
             GenerateData.get_random_string(10)
         )
 
-    def test_get_summoner(self):
-        requests.get = MagicMock()
-        mock_response = GenerateData().build_lol_api_summoner_response(
-            GenerateData.get_random_string(10)
-        )
-        requests.get.return_value = mock_response
-        response = self.lol_api.get_summoner(mock_response.json()["name"])
+    @patch.object(requests, "get", return_value=GenerateData().build_lol_api_summoner_response("test"))
+    def test_get_summoner(self,mocked):
+        response = self.lol_api.get_summoner(mocked.json()["name"])
         self.assertIsInstance(response, dict)
         requests.get.assert_called_with(
-            f"https://br1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{mock_response.json()['name']}",
+            f"https://br1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{mocked.json()['name']}",
             headers=self.lol_api.headers,
         )
         self.assertEqual(
             response["revision_date"],
-            datetime.datetime.fromtimestamp(mock_response.json()["revisionDate"] / 100),
+            datetime.datetime.fromtimestamp(mocked.return_value.json()['revisionDate']/100),
         )
 
-    @patch.object(requests, "get", return_value=MockResponseError())
+    def mock_response_error():
+        class MockResponseError:
+            def __init__(self) -> None:
+                self.ok = False
+                self.status_code = 400
+
+            def json(self):
+                return {}
+        return MockResponseError()
+
+    @patch.object(requests, "get", return_value=mock_response_error())
     def test_get_summoner_error(self, mocked):
         with self.assertRaises(Exception) as cmd:
             self.lol_api.get_summoner("test")
