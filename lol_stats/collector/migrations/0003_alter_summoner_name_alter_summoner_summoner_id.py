@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('collector', '0002_rename_summoners_summoner'),
+        ("collector", "0002_rename_summoners_summoner"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='summoner',
-            name='name',
+            model_name="summoner",
+            name="name",
             field=models.CharField(max_length=250, unique=True),
         ),
         migrations.AlterField(
-            model_name='summoner',
-            name='summoner_id',
+            model_name="summoner",
+            name="summoner_id",
             field=models.CharField(max_length=250, unique=True),
         ),
     ]

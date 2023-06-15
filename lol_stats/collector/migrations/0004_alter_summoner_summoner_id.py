@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('collector', '0003_alter_summoner_name_alter_summoner_summoner_id'),
+        ("collector", "0003_alter_summoner_name_alter_summoner_summoner_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='summoner',
-            name='summoner_id',
+            model_name="summoner",
+            name="summoner_id",
             field=models.CharField(max_length=250),
         ),
     ]

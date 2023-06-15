@@ -5,31 +5,46 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('collector', '0004_alter_summoner_summoner_id'),
+        ("collector", "0004_alter_summoner_summoner_id"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='summoner',
-            name='id',
+            model_name="summoner",
+            name="id",
         ),
         migrations.AlterField(
-            model_name='summoner',
-            name='puuid',
+            model_name="summoner",
+            name="puuid",
             field=models.UUIDField(editable=False, primary_key=True, serialize=False),
         ),
         migrations.CreateModel(
-            name='Match',
+            name="Match",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('match_id', models.CharField(max_length=250)),
-                ('puuid', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='collector.summoner')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("match_id", models.CharField(max_length=250)),
+                (
+                    "puuid",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="collector.summoner",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='match',
-            constraint=models.UniqueConstraint(fields=('puuid', 'match_id'), name='unique_match'),
+            model_name="match",
+            constraint=models.UniqueConstraint(
+                fields=("puuid", "match_id"), name="unique_match"
+            ),
         ),
     ]
