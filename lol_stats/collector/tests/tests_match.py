@@ -12,7 +12,7 @@ class MatchTestCase(TestCase):
     def setUp(self) -> None:
         self.maxDiff = None
         requests.get = MagicMock()
-        requests.get.return_value = GenerateData().build_lol_api_summoner_response(
+        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
             "SummonerTest"
         )
         self.summoner = Summoner.objects.create("SummonerTest")
@@ -28,15 +28,15 @@ class MatchAPITestCase(APITestCase):
     def setUp(self) -> None:
         self.maxDiff = None
         requests.get = MagicMock()
-        requests.get.return_value = GenerateData().build_lol_api_summoner_response(
+        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
             "SummonerTest"
         )
         self.summoner = Summoner.objects.create("SummonerTest")
 
     def mount_matchs_responses():
         return [
-            GenerateData().build_lol_api_matchs_response(True),
-            GenerateData().build_lol_api_matchs_response(),
+            GenerateData.build_lol_api_matchs_response(True),
+            GenerateData.build_lol_api_matchs_response(),
         ]
 
     @patch.object(requests, "post", side_efect=mount_matchs_responses())
@@ -49,7 +49,7 @@ class MatchAPITestCase(APITestCase):
     @patch.object(
         requests,
         "post",
-        return_value=GenerateData().build_lol_api_matchs_response(True),
+        return_value=GenerateData.build_lol_api_matchs_response(True),
     )
     def test_create_with_invalid_summoner(self, mocked):
         url = reverse("match-list")

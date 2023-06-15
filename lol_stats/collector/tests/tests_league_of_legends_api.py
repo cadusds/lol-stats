@@ -12,11 +12,11 @@ class LeagueOfLegendsAPITestCase(TestCase):
     def setUp(self) -> None:
         self.maxDiff = None
         self.lol_api = LeagueOfLegendsAPI()
-        self.summonner_data = GenerateData()._build_summoner_response_data(
+        self.summonner_data = GenerateData._build_summoner_response_data(
             GenerateData.get_random_string(10)
         )
 
-    @patch.object(requests, "get", return_value=GenerateData().build_lol_api_summoner_response("test"))
+    @patch.object(requests, "get", return_value=GenerateData.build_lol_api_summoner_response("test"))
     def test_get_summoner(self,mocked):
         response = self.lol_api.get_summoner(mocked.json()["name"])
         self.assertIsInstance(response, dict)
@@ -46,15 +46,16 @@ class LeagueOfLegendsAPITestCase(TestCase):
         mocked.assert_called()
         self.assertEqual(str(cmd.exception), "400")
 
-    def test_get_all_matchs_by_summoner_puuid_with_more_than_one_responses(self):
-        requests.get = MagicMock()
-        mock_response = GenerateData().build_lol_api_matchs_response
-        mock_responses = [mock_response(True), mock_response()]
-        requests.get.side_effect = mock_responses
+    def mock_response_to_get_matchs():
+        response = GenerateData.build_lol_api_matchs_response
+        return [response(True),response()]
+    
+    @patch.object(requests, "get", side_effect=mock_response_to_get_matchs())
+    def test_get_all_matchs_by_summoner_puuid_with_more_than_one_responses(self,mocked):
         puuid = str(uuid.uuid4())
         response = self.lol_api.get_all_matchs_by_summoner_puuid(puuid)
         self.assertIsInstance(response, list)
-        list_match_ids = self.list_all_matchs_ids(mock_responses)
+        list_match_ids = self.list_all_matchs_ids([GenerateData.build_lol_api_matchs_response(True),GenerateData.build_lol_api_matchs_response()])
         expected_response = [{"puuid": puuid, "match_id": x} for x in list_match_ids]
         self.assertEqual(len(response), len(expected_response))
         self.assertEqual(requests.get.call_count, 2)
@@ -66,9 +67,10 @@ class LeagueOfLegendsAPITestCase(TestCase):
         )
 
     def list_all_matchs_ids(self, responses: list):
+        responses = [x.json() for x in responses]
         matchs_ids = list()
         for response in responses:
-            matchs_ids += response.json()
+            matchs_ids += response
         return matchs_ids
 
     def order_list_by_match_id(self, dct):

@@ -21,7 +21,7 @@ class SummonerTestCase(TestCase):
     def test_create_summoner(self):
         requests.get = MagicMock()
         summoner_name = GenerateData.get_random_string(7)
-        requests.get.return_value = GenerateData().build_lol_api_summoner_response(
+        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
             summoner_name
         )
         summoner = Summoner.objects.create(summoner_name)
@@ -40,7 +40,7 @@ class SummonerAPITestCase(APITestCase):
     def create_summoner(self):
         requests.get = MagicMock()
         summoner_name = GenerateData.get_random_string(7)
-        requests.get.return_value = GenerateData().build_lol_api_summoner_response(
+        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
             summoner_name
         )
         return Summoner.objects.create(summoner_name)
@@ -49,7 +49,7 @@ class SummonerAPITestCase(APITestCase):
         url = reverse("summoner-list")
         summoner_name = GenerateData.get_random_string(7)
         requests.get = MagicMock()
-        requests.get.return_value = GenerateData().build_lol_api_summoner_response(
+        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
             summoner_name
         )
         response = self.client.post(url, {"name": summoner_name})
