@@ -16,8 +16,12 @@ class LeagueOfLegendsAPITestCase(TestCase):
             GenerateData.get_random_string(10)
         )
 
-    @patch.object(requests, "get", return_value=GenerateData.build_lol_api_summoner_response("test"))
-    def test_get_summoner(self,mocked):
+    @patch.object(
+        requests,
+        "get",
+        return_value=GenerateData.build_lol_api_summoner_response("test"),
+    )
+    def test_get_summoner(self, mocked):
         response = self.lol_api.get_summoner(mocked.json()["name"])
         self.assertIsInstance(response, dict)
         requests.get.assert_called_with(
@@ -26,7 +30,9 @@ class LeagueOfLegendsAPITestCase(TestCase):
         )
         self.assertEqual(
             response["revision_date"],
-            datetime.datetime.fromtimestamp(mocked.return_value.json()['revisionDate']/100),
+            datetime.datetime.fromtimestamp(
+                mocked.return_value.json()["revisionDate"] / 100
+            ),
         )
 
     def mock_response_error():
@@ -37,6 +43,7 @@ class LeagueOfLegendsAPITestCase(TestCase):
 
             def json(self):
                 return {}
+
         return MockResponseError()
 
     @patch.object(requests, "get", return_value=mock_response_error())
@@ -48,14 +55,21 @@ class LeagueOfLegendsAPITestCase(TestCase):
 
     def mock_response_to_get_matchs():
         response = GenerateData.build_lol_api_matchs_response
-        return [response(True),response()]
-    
+        return [response(True), response()]
+
     @patch.object(requests, "get", side_effect=mock_response_to_get_matchs())
-    def test_get_all_matchs_by_summoner_puuid_with_more_than_one_responses(self,mocked):
+    def test_get_all_matchs_by_summoner_puuid_with_more_than_one_responses(
+        self, mocked
+    ):
         puuid = str(uuid.uuid4())
         response = self.lol_api.get_all_matchs_by_summoner_puuid(puuid)
         self.assertIsInstance(response, list)
-        list_match_ids = self.list_all_matchs_ids([GenerateData.build_lol_api_matchs_response(True),GenerateData.build_lol_api_matchs_response()])
+        list_match_ids = self.list_all_matchs_ids(
+            [
+                GenerateData.build_lol_api_matchs_response(True),
+                GenerateData.build_lol_api_matchs_response(),
+            ]
+        )
         expected_response = [{"puuid": puuid, "match_id": x} for x in list_match_ids]
         self.assertEqual(len(response), len(expected_response))
         self.assertEqual(requests.get.call_count, 2)

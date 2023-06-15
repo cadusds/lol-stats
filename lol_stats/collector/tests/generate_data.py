@@ -7,9 +7,8 @@ import datetime
 
 
 class GenerateData:
-    
     @classmethod
-    def get_random_string(cls,length):
+    def get_random_string(cls, length):
         letters = string.ascii_letters
         result_str = "".join(random.choice(letters) for i in range(length))
         return result_str
@@ -22,9 +21,10 @@ class GenerateData:
             puuid=str(uuid.uuid4()),
             name=summoner_name,
             profileIconId=str(uuid.uuid4()),
-            revisionDate=datetime.datetime.utcnow().timestamp()*100,
+            revisionDate=datetime.datetime.utcnow().timestamp() * 100,
             summonerLevel=random.randint(20, 300),
         )
+
     @classmethod
     def _build_match_response_data(cls, last_response: bool = False):
         if last_response:
