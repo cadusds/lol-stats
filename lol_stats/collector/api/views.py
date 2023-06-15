@@ -27,7 +27,7 @@ class SummonerViewSet(viewsets.ModelViewSet):
 
 
 class MatchViesSet(viewsets.ModelViewSet):
-    queryset = models.Match.objects.all()
+    queryset = models.SummonerMatch.objects.all()
     serializer_class = serializers.MatchsSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -40,7 +40,7 @@ class MatchViesSet(viewsets.ModelViewSet):
                 {"error": f"The summoner with name {name}, not exists"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        matchs = models.Match.objects.create_all_matchs_by_puuid(summoner.puuid)
+        matchs = models.SummonerMatch.objects.create_all_matchs_by_puuid(summoner.puuid)
         data = list()
         for match in matchs:
             match = serializers.MatchsSerializer(

@@ -1,3 +1,4 @@
+from typing import Iterable, Optional
 from django.db import models
 from collector.api.league_of_legends_api import LeagueOfLegendsAPI
 
@@ -20,25 +21,32 @@ class Summoner(models.Model):
     objects = SummonerManager()
 
 
-class MatchManager(models.Manager):
+class SummonerMatchManager(models.Manager):
     def create_all_matchs_by_puuid(self, puuid):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
         matchs = list()
         summoner = Summoner.objects.get(puuid=puuid)
         for dct in matchs_data:
-            dct["puuid"] = summoner
+            dct["summoner"] = summoner
+            match_id = dct["match_id"]
+            dct["game_id"] = match_id.replace("BR1_","")
             match, _ = self.update_or_create(**dct)
             matchs.append(match)
         return matchs
 
 
-class Match(models.Model):
-    puuid = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
-    match_id = models.CharField(max_length=250, primary_key=True)
+class SummonerMatch(models.Model):
+    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
+    match_id = models.CharField(max_length=250)
+    game_id = models.CharField(max_length=10)
 
-    objects = MatchManager()
+    objects = SummonerMatchManager()
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["puuid", "match_id"], name="unique_match")
+            models.UniqueConstraint(fields=["summoner", "match_id"], name="unique_match")
         ]
+
+    # def save(self,*args,**kwargs) -> None:
+    #     self.game_id = int(str(self.match_id).replace("BR1_",""))
+    #     return super(SummonerMatch,self).save(*args,**kwargs)

@@ -4,11 +4,12 @@ from django.test import TestCase
 from rest_framework import status
 from unittest.mock import MagicMock, patch
 from rest_framework.test import APITestCase
-from collector.models import Match, Summoner
+from collector.models import SummonerMatch, Summoner
 from collector.tests.generate_data import GenerateData
+from collector.api.league_of_legends_api import LeagueOfLegendsAPI
 
 
-class MatchTestCase(TestCase):
+class SummonerMatchTestCase(TestCase):
     def setUp(self) -> None:
         self.maxDiff = None
         requests.get = MagicMock()
@@ -17,14 +18,28 @@ class MatchTestCase(TestCase):
         )
         self.summoner = Summoner.objects.create("SummonerTest")
 
-    def test_create_all_matchs_by_puuid(self):
-        matchs = Match.objects.create_all_matchs_by_puuid(puuid=self.summoner.puuid)
+    def mock_get_all_matchs_by_summoner_puuid(puuid):
+        response = GenerateData.build_lol_api_matchs_response(True)
+        summoner = Summoner.objects.get(puuid=puuid)
+        return [{"summoner": summoner, "match_id": match_id} for match_id in response.json()]
+    
+    @patch.object(
+        LeagueOfLegendsAPI,
+        "get_all_matchs_by_summoner_puuid",
+        side_effect=mock_get_all_matchs_by_summoner_puuid,
+    )
+    def test_create_all_matchs_by_puuid(self, mocked):
+        matchs = SummonerMatch.objects.create_all_matchs_by_puuid(
+            puuid=self.summoner.puuid
+        )
         self.assertIsInstance(matchs, list)
         for match in matchs:
-            self.assertEqual(str(match.puuid.pk), self.summoner.pk)
+            self.assertEqual(str(match.summoner.pk), self.summoner.pk)
+            self.assertIn("BR1", match.match_id)
+            self.assertIsInstance(match.game_id,str)
 
 
-class MatchAPITestCase(APITestCase):
+class SummonerMatchAPITestCase(APITestCase):
     def setUp(self) -> None:
         self.maxDiff = None
         requests.get = MagicMock()
@@ -44,7 +59,7 @@ class MatchAPITestCase(APITestCase):
         url = reverse("match-list")
         response = self.client.post(url, data={"name": "SummonerTest"})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Match.objects.count(), 7)
+        self.assertEqual(SummonerMatch.objects.count(), 7)
 
     @patch.object(
         requests,
