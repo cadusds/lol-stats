@@ -20,25 +20,46 @@ class Summoner(models.Model):
     objects = SummonerManager()
 
 
-class MatchManager(models.Manager):
+class SummonerMatchManager(models.Manager):
     def create_all_matchs_by_puuid(self, puuid):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
         matchs = list()
         summoner = Summoner.objects.get(puuid=puuid)
         for dct in matchs_data:
-            dct["puuid"] = summoner
+            dct["summoner"] = summoner
+            match_id = dct["match_id"]
+            dct["game_id"] = match_id.replace("BR1_","")
             match, _ = self.update_or_create(**dct)
             matchs.append(match)
         return matchs
 
 
-class Match(models.Model):
-    puuid = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
-    match_id = models.CharField(max_length=250, primary_key=True)
+class SummonerMatch(models.Model):
+    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
+    match_id = models.CharField(max_length=250)
+    game_id = models.CharField(max_length=10)
 
-    objects = MatchManager()
+    objects = SummonerMatchManager()
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["puuid", "match_id"], name="unique_match")
+            models.UniqueConstraint(fields=["summoner", "match_id"], name="unique_match")
         ]
+
+class MatchParticipantBasicStats(models.Model):
+    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
+    game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
+    team_position = models.CharField(max_length=200)
+    deaths = models.IntegerField()
+    assists = models.IntegerField()
+    kills = models.IntegerField()
+    double_kills = models.IntegerField()
+    triple_kills = models.IntegerField()
+    quadra_kills = models.IntegerField()
+    penta_kills = models.IntegerField()
+    first_blood_kill = models.BooleanField()
+    first_blood_assist = models.BooleanField()
+    first_tower_kill = models.BooleanField()
+    first_tower_assist = models.BooleanField()
+    largest_multi_kill = models.IntegerField()
+    win = models.BooleanField()

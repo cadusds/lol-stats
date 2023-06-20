@@ -56,4 +56,4 @@ class LeagueOfLegendsAPI:
             if len(matchs) < 100:
                 break
             data["start"] += 100
-        return [{"puuid": puuid, "match_id": match_id} for match_id in response]
+        return [{"summoner": puuid, "match_id": match_id} for match_id in response]

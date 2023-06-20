@@ -18,5 +18,5 @@ class SummonerSerializer(serializers.HyperlinkedModelSerializer):
 
 class MatchsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = models.Match
-        fields = ["puuid", "match_id"]
+        model = models.SummonerMatch
+        fields = ["summoner", "match_id"]
