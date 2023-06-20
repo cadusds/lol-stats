@@ -1,12 +1,9 @@
-import uuid
-import json
 import requests
 from django.urls import reverse
 from django.test import TestCase
 from rest_framework import status
 from unittest.mock import MagicMock
 from collector.models import Summoner
-from rest_framework.request import Request
 from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory
 from collector.tests.generate_data import GenerateData

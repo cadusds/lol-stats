@@ -1,4 +1,3 @@
-from typing import Iterable, Optional
 from django.db import models
 from collector.api.league_of_legends_api import LeagueOfLegendsAPI
 
@@ -47,6 +46,20 @@ class SummonerMatch(models.Model):
             models.UniqueConstraint(fields=["summoner", "match_id"], name="unique_match")
         ]
 
-    # def save(self,*args,**kwargs) -> None:
-    #     self.game_id = int(str(self.match_id).replace("BR1_",""))
-    #     return super(SummonerMatch,self).save(*args,**kwargs)
+class MatchParticipantBasicStats(models.Model):
+    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
+    game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
+    team_position = models.CharField(max_length=200)
+    deaths = models.IntegerField()
+    assists = models.IntegerField()
+    kills = models.IntegerField()
+    double_kills = models.IntegerField()
+    triple_kills = models.IntegerField()
+    quadra_kills = models.IntegerField()
+    penta_kills = models.IntegerField()
+    first_blood_kill = models.BooleanField()
+    first_blood_assist = models.BooleanField()
+    first_tower_kill = models.BooleanField()
+    first_tower_assist = models.BooleanField()
+    largest_multi_kill = models.IntegerField()
+    win = models.BooleanField()

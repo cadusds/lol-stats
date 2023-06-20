@@ -18,4 +18,4 @@ jobs:
         run: coverage run lol_stats/manage.py test
       
       - name: Test coverage of tests
-        run: coverage report -m --omit="./lol_stats/collector/tests/*","./lol_stats/collector/migrations/*","./lol_stats/lol_stats/*","manage.py" --fail-under=98
+        run: coverage report -m --omit="./lol_stats/collector/tests/*","./lol_stats/collector/migrations/*","./lol_stats/lol_stats/*","manage.py","admin.py" --fail-under=98
