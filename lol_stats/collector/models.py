@@ -7,7 +7,6 @@ class SummonerManager(models.Manager):
         summonner_data = LeagueOfLegendsAPI().get_summoner(summoner_name)
         return super().create(**summonner_data)
 
-
 class Summoner(models.Model):
     puuid = models.CharField(primary_key=True, editable=False, max_length=250)
     summoner_id = models.CharField(max_length=250)
@@ -45,6 +44,22 @@ class SummonerMatch(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["summoner", "match_id"], name="unique_match")
         ]
+
+class Match(models.Model):
+    game_id = models.CharField(max_length=250)
+    game_creation = models.DateTimeField()
+    game_start_timestamp = models.DateTimeField()
+    game_end_timestamp = models.DateTimeField()
+    game_duration = models.BigIntegerField
+    game_mode = models.CharField(max_length=250)
+    game_name = models.CharField(max_length=250)
+    game_type = models.CharField(max_length=250)
+    game_version = models.CharField(max_length=250)
+    map_id = models.IntegerField()
+    platform_id = models.CharField(max_length=250)
+    queue_id = models.IntegerField()
+    teams = models.JSONField()
+    tournament_code = models.CharField(max_length=250)
 
 class MatchParticipantBasicStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
