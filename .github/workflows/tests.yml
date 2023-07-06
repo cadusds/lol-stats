@@ -15,7 +15,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Test with pytest
-        run: coverage run lol_stats/manage.py test
+        run: coverage run manage.py test
       
       - name: Test coverage of tests
         run: coverage report -m --omit="./collector/tests/*","./collector/migrations/*","manage.py","admin.py","__init__.py" --fail-under=98
