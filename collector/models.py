@@ -7,6 +7,7 @@ class SummonerManager(models.Manager):
         summonner_data = LeagueOfLegendsAPI().get_summoner(summoner_name)
         return super().create(**summonner_data)
 
+
 class Summoner(models.Model):
     puuid = models.CharField(primary_key=True, editable=False, max_length=250)
     summoner_id = models.CharField(max_length=250)
@@ -27,7 +28,7 @@ class SummonerMatchManager(models.Manager):
         for dct in matchs_data:
             dct["summoner"] = summoner
             match_id = dct["match_id"]
-            dct["game_id"] = match_id.replace("BR1_","")
+            dct["game_id"] = match_id.replace("BR1_", "")
             match, _ = self.update_or_create(**dct)
             matchs.append(match)
         return matchs
@@ -42,8 +43,11 @@ class SummonerMatch(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["summoner", "match_id"], name="unique_match")
+            models.UniqueConstraint(
+                fields=["summoner", "match_id"], name="unique_match"
+            )
         ]
+
 
 class Match(models.Model):
     game_id = models.CharField(max_length=250)
@@ -60,6 +64,7 @@ class Match(models.Model):
     queue_id = models.IntegerField()
     teams = models.JSONField()
     tournament_code = models.CharField(max_length=250)
+
 
 class MatchParticipantBasicStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
@@ -78,6 +83,7 @@ class MatchParticipantBasicStats(models.Model):
     first_tower_assist = models.BooleanField()
     largest_multi_kill = models.IntegerField()
     win = models.BooleanField()
+
 
 class MatchParticipantStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
