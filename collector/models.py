@@ -116,9 +116,9 @@ class MatchParticipantStats(models.Model):
     longest_time_spent_living = models.IntegerField()
     time_played = models.IntegerField()
 
+
 class MatchParticipantChampionStats(models.Model):
-   
-    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False) 
+    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
     game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
     champion_name = models.CharField(max_length=200)
     champ_experience = models.IntegerField()
