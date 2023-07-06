@@ -48,7 +48,6 @@ class SummonerMatch(models.Model):
             )
         ]
 
-
 class Match(models.Model):
     game_id = models.CharField(max_length=250)
     game_creation = models.DateTimeField()
