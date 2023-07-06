@@ -64,6 +64,7 @@ class Match(models.Model):
     teams = models.JSONField()
     tournament_code = models.CharField(max_length=250)
 
+
 class MatchParticipantBasicStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
     game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
@@ -81,6 +82,7 @@ class MatchParticipantBasicStats(models.Model):
     first_tower_assist = models.BooleanField()
     largest_multi_kill = models.IntegerField()
     win = models.BooleanField()
+
 
 class MatchParticipantStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
