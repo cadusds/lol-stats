@@ -21,8 +21,10 @@ class SummonerMatchTestCase(TestCase):
     def mock_get_all_matchs_by_summoner_puuid(puuid):
         response = GenerateData.build_lol_api_matchs_response(True)
         summoner = Summoner.objects.get(puuid=puuid)
-        return [{"summoner": summoner, "match_id": match_id} for match_id in response.json()]
-    
+        return [
+            {"summoner": summoner, "match_id": match_id} for match_id in response.json()
+        ]
+
     @patch.object(
         LeagueOfLegendsAPI,
         "get_all_matchs_by_summoner_puuid",
@@ -36,7 +38,7 @@ class SummonerMatchTestCase(TestCase):
         for match in matchs:
             self.assertEqual(str(match.summoner.pk), self.summoner.pk)
             self.assertIn("BR1", match.match_id)
-            self.assertIsInstance(match.game_id,str)
+            self.assertIsInstance(match.game_id, str)
 
 
 class SummonerMatchAPITestCase(APITestCase):

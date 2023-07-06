@@ -57,6 +57,9 @@ class LeagueOfLegendsAPITestCase(TestCase):
         response = GenerateData.build_lol_api_matchs_response
         return [response(True), response()]
 
+    def test_fail(self):
+        self.assertEqual(1, 2)
+
     @patch.object(requests, "get", side_effect=mock_response_to_get_matchs())
     def test_get_all_matchs_by_summoner_puuid_with_more_than_one_responses(
         self, mocked
