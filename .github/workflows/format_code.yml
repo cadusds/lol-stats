@@ -19,6 +19,6 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: Git Actions
+          author_name: git_actions
           message: 'Lint code'
           add: '*.py'
