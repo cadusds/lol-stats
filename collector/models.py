@@ -115,3 +115,23 @@ class MatchParticipantStats(models.Model):
     gold_spent = models.IntegerField()
     longest_time_spent_living = models.IntegerField()
     time_played = models.IntegerField()
+
+
+class MatchParticipantChampionStats(models.Model):
+    summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
+    game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
+    champion_name = models.CharField(max_length=200)
+    champ_experience = models.IntegerField()
+    champ_level = models.IntegerField()
+    items_purchased = models.IntegerField()
+    item0 = models.IntegerField()
+    item1 = models.IntegerField()
+    item2 = models.IntegerField()
+    item3 = models.IntegerField()
+    item4 = models.IntegerField()
+    item5 = models.IntegerField()
+    item6 = models.IntegerField()
+    spell1_casts = models.IntegerField()
+    spell2_casts = models.IntegerField()
+    spell3_casts = models.IntegerField()
+    spell4_casts = models.IntegerField()
