@@ -32,6 +32,17 @@ class GenerateData:
         return ["BR1_" + str(x) for x in range(2000000000, 2000000099)]
 
     @classmethod
+    def _build_match_stats_data(cls,match_id:str):
+        return {
+            'metadata':{
+                'dataVersion':2,
+                'matchId':match_id,
+                'participants':[cls.get_random_string(78) for _ in range(1,10)]
+            },
+            'info':{}
+        }
+    
+    @classmethod
     def build_lol_api_summoner_response(cls, summoner_name):
         response = requests.Response()
         response._content = json.dumps(
@@ -46,3 +57,14 @@ class GenerateData:
         response = requests.Response()
         response._content = json.dumps(data).encode("utf-8")
         return response
+
+    @classmethod
+    def build_lol_api_match_stats_response(cls,match_id:str):
+        class MockResponse:
+            def __init__(self) -> None:
+                self.ok = True
+                self.status_code = 200
+            
+            def json(self):
+                return cls._build_match_stats_data(match_id)
+        return MockResponse()

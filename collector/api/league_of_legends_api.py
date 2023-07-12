@@ -1,7 +1,9 @@
 import os
 import requests
 import datetime
+import dotenv
 
+dotenv.load_dotenv()
 
 class LeagueOfLegendsAPI:
     BASE_ENDPOINT = "https://{route}.api.riotgames.com/lol/"
@@ -13,7 +15,7 @@ class LeagueOfLegendsAPI:
             "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
             "Accept-Charset": "application/x-www-form-urlencoded; charset=UTF-8",
             "Origin": "https://developer.riotgames.com",
-            "X-Riot-Token": self.API_KEY,
+            "X-Riot-Token": "RGAPI-982bd379-3931-4dae-9483-88fa1c696057",
         }
 
     def get_summoner(self, summoner_name: str) -> dict:
@@ -57,3 +59,12 @@ class LeagueOfLegendsAPI:
                 break
             data["start"] += 100
         return [{"summoner": puuid, "match_id": match_id} for match_id in response]
+
+    def get_match_stats(self,match_id) -> dict:
+        endpoint = self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/{match_id}"
+        response = requests.get(endpoint,headers=self.headers)
+        match response.ok:
+            case True:
+                return response.json()
+            case False:
+                raise Exception(f"Request Error\nstatus_code:{response.status_code}")
