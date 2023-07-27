@@ -39,7 +39,11 @@ class SummonerMatchTestCase(TestCase):
             self.assertEqual(str(match.summoner.pk), self.summoner.pk)
             self.assertIn("BR1", match.match_id)
             self.assertIsInstance(match.game_id, str)
-
+    
+    def test_create_all_matchs_stats_by_puuid(self):
+        response = SummonerMatch.objects.create_all_matchs_stats_by_puuid(self.summoner.puuid)
+        self.assertEqual(response,{"response":f"All summoner {self.summoner.name} match statistics have been collected"})
+        
 
 class SummonerMatchAPITestCase(APITestCase):
     def setUp(self) -> None:

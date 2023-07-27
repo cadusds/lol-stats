@@ -26,7 +26,7 @@ class SummonerViewSet(viewsets.ModelViewSet):
         return Response(summoner.data, status=status.HTTP_201_CREATED)
 
 
-class MatchViesSet(viewsets.ModelViewSet):
+class MatchViewsSet(viewsets.ModelViewSet):
     queryset = models.SummonerMatch.objects.all()
     serializer_class = serializers.MatchsSerializer
     permission_classes = [permissions.AllowAny]

@@ -21,17 +21,21 @@ class Summoner(models.Model):
 
 
 class SummonerMatchManager(models.Manager):
+    
     def create_all_matchs_by_puuid(self, puuid):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
-        matchs = list()
         summoner = Summoner.objects.get(puuid=puuid)
         for dct in matchs_data:
             dct["summoner"] = summoner
             match_id = dct["match_id"]
             dct["game_id"] = match_id.replace("BR1_", "")
-            match, _ = self.update_or_create(**dct)
-            matchs.append(match)
-        return matchs
+            self.update_or_create(**dct)
+        return SummonerMatch.objects.filter(summoner=summoner)
+
+    def create_all_matchs_stats_by_puuid(self,puuid):
+        summoner = Summoner.objects.get(puuid=puuid)
+        summoner_matchs = SummonerMatch.objects.filter(summoner=summoner)
+        
 
 
 class SummonerMatch(models.Model):

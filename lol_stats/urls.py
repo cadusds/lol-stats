@@ -21,7 +21,7 @@ from collector.api import views
 
 router = routers.DefaultRouter()
 router.register(r"summoners", views.SummonerViewSet, basename="summoner")
-router.register(r"matchs", views.MatchViesSet, basename="match")
+router.register(r"matchs", views.MatchViewsSet, basename="match")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
