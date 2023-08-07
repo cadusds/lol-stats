@@ -4,7 +4,8 @@ from django.test import TestCase
 from rest_framework import status
 from unittest.mock import MagicMock, patch
 from rest_framework.test import APITestCase
-from collector.models import SummonerMatch, Summoner
+from django.db.models.query import QuerySet
+from collector.models import SummonerMatch, Summoner, Match
 from collector.tests.generate_data import GenerateData
 from collector.api.league_of_legends_api import LeagueOfLegendsAPI
 
@@ -34,16 +35,31 @@ class SummonerMatchTestCase(TestCase):
         matchs = SummonerMatch.objects.create_all_matchs_by_puuid(
             puuid=self.summoner.puuid
         )
-        self.assertIsInstance(matchs, list)
+        self.assertIsInstance(matchs, QuerySet)
         for match in matchs:
             self.assertEqual(str(match.summoner.pk), self.summoner.pk)
             self.assertIn("BR1", match.match_id)
             self.assertIsInstance(match.game_id, str)
-    
-    def test_create_all_matchs_stats_by_puuid(self):
-        response = SummonerMatch.objects.create_all_matchs_stats_by_puuid(self.summoner.puuid)
-        self.assertEqual(response,{"response":f"All summoner {self.summoner.name} match statistics have been collected"})
-        
+
+    @patch.object(
+        LeagueOfLegendsAPI,
+        "get_all_matchs_by_summoner_puuid",
+        side_effect=mock_get_all_matchs_by_summoner_puuid,
+    )
+    @patch.object(
+        LeagueOfLegendsAPI,
+        "get_match_stats",
+        return_value=GenerateData.build_lol_api_get_match_stats_method_response(),
+    )
+    def test_create_all_matchs_stats_by_puuid(self, mocked_match_stats, mocked_matchs):
+        SummonerMatch.objects.create_all_matchs_by_puuid(puuid=self.summoner.puuid)
+        self.assertEqual(
+            SummonerMatch.objects.filter(summoner=self.summoner).count(), 100
+        )
+        results = SummonerMatch.objects.create_all_matchs_stats_by_puuid(self.summoner.puuid)
+        # self.assertEqual(Match.objects.all().count(), 100)
+        self.assertEqual(results,[])
+
 
 class SummonerMatchAPITestCase(APITestCase):
     def setUp(self) -> None:

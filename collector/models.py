@@ -1,5 +1,6 @@
 from django.db import models
 from collector.api.league_of_legends_api import LeagueOfLegendsAPI
+from concurrent.futures import ThreadPoolExecutor as Thread
 
 
 class SummonerManager(models.Manager):
@@ -21,7 +22,6 @@ class Summoner(models.Model):
 
 
 class SummonerMatchManager(models.Manager):
-    
     def create_all_matchs_by_puuid(self, puuid):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
         summoner = Summoner.objects.get(puuid=puuid)
@@ -32,10 +32,30 @@ class SummonerMatchManager(models.Manager):
             self.update_or_create(**dct)
         return SummonerMatch.objects.filter(summoner=summoner)
 
-    def create_all_matchs_stats_by_puuid(self,puuid):
+    def create_all_matchs_stats_by_puuid(self, puuid):
         summoner = Summoner.objects.get(puuid=puuid)
         summoner_matchs = SummonerMatch.objects.filter(summoner=summoner)
-        
+        matchs = list(
+            map(lambda summoner_match: summoner_match.match_id, summoner_matchs)
+        )
+        with Thread(max_workers=4) as executor:
+            list_data = list(executor.map(LeagueOfLegendsAPI().get_match_stats, matchs))
+        results = list()
+        for data in list_data:
+            results.append(Match.objects.create_match_object_with_match_data(data))
+        return results
+        # executor.map(
+        #     lambda data: MatchParticipantBasicStats.objects.create_match_participant_basic_stats_object_with_match_data(
+        #         data, puuid
+        #     ),
+        #     list_data,
+        # )
+        # executor.map(
+        #     lambda data: MatchParticipantStats.objects.create_match_participant_stats_object_with_match_data(
+        #         data, puuid
+        #     ),
+        #     matchs_data,
+        # )
 
 
 class SummonerMatch(models.Model):
@@ -53,12 +73,23 @@ class SummonerMatch(models.Model):
         ]
 
 
+class MatchManager(models.Manager):
+    def get_match_stats_data(self, match_data: dict) -> dict:
+        fields = [x.name for x in Match._meta.fields if x.name != "id"]
+        dct = {x: match_data[x] for x in fields}
+        return dct
+
+    def create_match_object_with_match_data(self, match_data: dict) -> models.Model:
+        data = self.get_match_stats_data(match_data)
+        return self.update_or_create(**data)
+
+
 class Match(models.Model):
     game_id = models.CharField(max_length=250)
-    game_creation = models.DateTimeField()
-    game_start_timestamp = models.DateTimeField()
-    game_end_timestamp = models.DateTimeField()
-    game_duration = models.BigIntegerField
+    game_creation = models.CharField(max_length=250)
+    game_start_timestamp = models.CharField(max_length=250)
+    game_end_timestamp = models.CharField(max_length=250)
+    game_duration = models.CharField(max_length=250)
     game_mode = models.CharField(max_length=250)
     game_name = models.CharField(max_length=250)
     game_type = models.CharField(max_length=250)
@@ -68,6 +99,30 @@ class Match(models.Model):
     queue_id = models.IntegerField()
     teams = models.JSONField()
     tournament_code = models.CharField(max_length=250)
+
+    objects = MatchManager()
+
+
+class MatchParticipantBasicStatsManager(models.Manager):
+    def get_match_participant_basic_stats_data(
+        self, match_data: dict, puuid: str
+    ) -> dict:
+        match_data = list(
+            filter(
+                lambda participant: participant["puuid"] == puuid,
+                match_data["participants"],
+            )
+        )[0]
+        fields = [x.name for x in MatchParticipantBasicStats._meta.fields if x != "id"]
+        dct = {x: match_data[x] for x in fields}
+        return dct
+
+    def create_match_participant_basic_stats_object_with_match_data(
+        self, match_data: dict, puuid: str
+    ) -> models.Model:
+        data = self.get_match_participant_basic_stats_data(match_data, puuid)
+        obj, _ = self.update_or_create(**data)
+        return obj
 
 
 class MatchParticipantBasicStats(models.Model):
@@ -87,6 +142,28 @@ class MatchParticipantBasicStats(models.Model):
     first_tower_assist = models.BooleanField()
     largest_multi_kill = models.IntegerField()
     win = models.BooleanField()
+
+    objects = MatchParticipantBasicStatsManager()
+
+
+class MatchParticipantStatsManager(models.Manager):
+    def get_match_participant_stats_data(self, match_data: dict, puuid: str) -> dict:
+        data = list(
+            filter(
+                lambda participant: participant["puuid"] == puuid,
+                match_data["participants"],
+            )
+        )[0]
+        fields = [x.name for x in MatchParticipantStats._meta.fields if x != "id"]
+        dct = {x: data[x] for x in fields}
+        return dct
+
+    def create_match_participant_stats_object_with_match_data(
+        self, match_data: dict, puuid: str
+    ) -> models.Model:
+        data = self.get_match_participant_stats_data(match_data, puuid)
+        obj, _ = self.update_or_create(**data)
+        return obj
 
 
 class MatchParticipantStats(models.Model):
@@ -119,6 +196,25 @@ class MatchParticipantStats(models.Model):
     gold_spent = models.IntegerField()
     longest_time_spent_living = models.IntegerField()
     time_played = models.IntegerField()
+
+    objects = MatchParticipantStatsManager()
+
+
+class MatchParticipantChampionStatsManager(models.Manager):
+    def get_match_participant_champion_stats_data(
+        self, match_data: dict, puuid: str
+    ) -> dict:
+        data = list(
+            filter(
+                lambda participant: participant["puuid"] == puuid,
+                match_data["participants"],
+            )
+        )[0]
+        fields = [
+            x.name for x in MatchParticipantChampionStats._meta.fields if x != "id"
+        ]
+        dct = {x: data[x] for x in fields}
+        return dct
 
 
 class MatchParticipantChampionStats(models.Model):

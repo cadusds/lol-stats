@@ -1,9 +1,4 @@
-import json
-import uuid
-import random
-import string
-import requests
-import datetime
+import json, os, uuid, random, string, requests, datetime
 
 
 class GenerateData:
@@ -32,16 +27,16 @@ class GenerateData:
         return ["BR1_" + str(x) for x in range(2000000000, 2000000099)]
 
     @classmethod
-    def _build_match_stats_data(cls,match_id:str):
+    def _build_match_stats_data(cls, match_id: str):
         return {
-            'metadata':{
-                'dataVersion':2,
-                'matchId':match_id,
-                'participants':[cls.get_random_string(78) for _ in range(1,10)]
+            "metadata": {
+                "dataVersion": 2,
+                "matchId": match_id,
+                "participants": [cls.get_random_string(78) for _ in range(1, 10)],
             },
-            'info':{}
+            "info": {},
         }
-    
+
     @classmethod
     def build_lol_api_summoner_response(cls, summoner_name):
         response = requests.Response()
@@ -59,12 +54,21 @@ class GenerateData:
         return response
 
     @classmethod
-    def build_lol_api_match_stats_response(cls,match_id:str):
+    def build_lol_api_match_stats_response(cls, match_id: str):
         class MockResponse:
             def __init__(self) -> None:
                 self.ok = True
                 self.status_code = 200
-            
+
             def json(self):
                 return cls._build_match_stats_data(match_id)
+
         return MockResponse()
+
+    @classmethod
+    def build_lol_api_get_match_stats_method_response(cls):
+        absolute_dir = os.path.dirname(__file__)
+        relative_path = "mocks/match_data.json"
+        with open(os.path.join(absolute_dir, relative_path)) as file:
+            data = json.load(file)
+            return data

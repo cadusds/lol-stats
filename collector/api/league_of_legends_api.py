@@ -1,9 +1,7 @@
-import os
-import requests
-import datetime
-import dotenv
+import os, requests, datetime, dotenv, re
 
 dotenv.load_dotenv()
+
 
 class LeagueOfLegendsAPI:
     BASE_ENDPOINT = "https://{route}.api.riotgames.com/lol/"
@@ -60,11 +58,20 @@ class LeagueOfLegendsAPI:
             data["start"] += 100
         return [{"summoner": puuid, "match_id": match_id} for match_id in response]
 
-    def get_match_stats(self,match_id) -> dict:
-        endpoint = self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/{match_id}"
-        response = requests.get(endpoint,headers=self.headers)
+    def get_match_stats(self, match_id) -> dict:
+        endpoint = (
+            self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/{match_id}"
+        )
+        response = requests.get(endpoint, headers=self.headers)
         match response.ok:
             case True:
-                return response.json()
+                return self._format_keys(response.json()["info"])
             case False:
                 raise Exception(f"Request Error\nstatus_code:{response.status_code}")
+
+    def _format_keys(self, dct: dict) -> dict:
+        return {self._camel_to_snake_case(k): v for k, v in dct.items()}
+
+    def _camel_to_snake_case(self, str_camel_case: str) -> str:
+        snake_case_string = re.sub("([A-Z])", r"_\1", str_camel_case).lower()
+        return snake_case_string
