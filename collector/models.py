@@ -3,8 +3,8 @@ from collector.api.league_of_legends_api import LeagueOfLegendsAPI
 
 
 class SummonerManager(models.Manager):
-    def create(self, summoner_name: str):
-        summonner_data = LeagueOfLegendsAPI().get_summoner(summoner_name)
+    def create(self, name: str):
+        summonner_data = LeagueOfLegendsAPI().get_summoner(name)
         return super().create(**summonner_data)
 
 

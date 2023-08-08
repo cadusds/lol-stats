@@ -1,9 +1,8 @@
-from factory.django import DjangoModelFactory
-from collector.tests.generate_data import GenerateData
+import factory
+from collector import models
 
-class SummonerFactory(DjangoModelFactory):
+class SummonerFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = 'collector.Summoner'
-        django_get_or_create = ('name',)
+        model = models.Summoner
     
-    name = 'Summoner ' + GenerateData.get_random_string(6)
+    name = factory.Faker('name')
