@@ -1,32 +1,18 @@
 import requests
 from django.urls import reverse
-from django.test import TestCase
 from rest_framework import status
-from unittest.mock import MagicMock
+from unittest.mock import patch
 from collector.models import Summoner
 from rest_framework.test import APITestCase
 from rest_framework.test import APIRequestFactory
 from collector.tests.generate_data import GenerateData
 from collector.api.serializers import SummonerSerializer
-from collector.api.league_of_legends_api import LeagueOfLegendsAPI
+from faker import Faker
+from ..factories.summoner import SummonerFactory
 
 
-class SummonerTestCase(TestCase):
-    def setUp(self) -> None:
-        self.lol_api = LeagueOfLegendsAPI()
-
-    def test_create_summoner(self):
-        requests.get = MagicMock()
-        summoner_name = GenerateData.get_random_string(7)
-        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
-            summoner_name
-        )
-        summoner = Summoner.objects.create(summoner_name)
-        requests.get.assert_called_with(
-            f"https://br1.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summoner_name}",
-            headers=self.lol_api.headers,
-        )
-        self.assertEqual(summoner.name, summoner_name)
+fake = Faker()
+fake_name = fake.name()
 
 
 class SummonerAPITestCase(APITestCase):
@@ -34,30 +20,18 @@ class SummonerAPITestCase(APITestCase):
         self.maxDiff = None
         self.factory = APIRequestFactory()
 
-    def create_summoner(self):
-        requests.get = MagicMock()
-        summoner_name = GenerateData.get_random_string(7)
-        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
-            summoner_name
-        )
-        return Summoner.objects.create(summoner_name)
-
+    @patch.object(requests, "get", return_value=GenerateData.build_lol_api_summoner_response(fake_name))
     def test_create_summoner(self):
         url = reverse("summoner-list")
-        summoner_name = GenerateData.get_random_string(7)
-        requests.get = MagicMock()
-        requests.get.return_value = GenerateData.build_lol_api_summoner_response(
-            summoner_name
-        )
-        response = self.client.post(url, {"name": summoner_name})
+        response = self.client.post(url, {"name": fake_name})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Summoner.objects.count(), 1)
         summoner = Summoner.objects.first()
-        self.assertEqual(summoner.name, summoner_name)
+        self.assertEqual(summoner.name, fake_name)
 
     def test_create_summoner_already_exists(self):
-        summoner_name = GenerateData.get_random_string(7)
-        Summoner.objects.create(summoner_name=summoner_name)
+        summoner_name = fake.name()
+        SummonerFactory.create(name=summoner_name)
         url = reverse("summoner-list")
         response = self.client.post(url, {"name": summoner_name})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -65,8 +39,7 @@ class SummonerAPITestCase(APITestCase):
         self.assertEqual(response.data, expected_data)
 
     def test_retrieve_summoner(self):
-        summoner_name = GenerateData.get_random_string(7)
-        summoner = Summoner.objects.create(summoner_name)
+        summoner = SummonerFactory.create(fake_name)
         response = self.client.get(
             reverse("summoner-detail", kwargs={"pk": summoner.pk})
         )
@@ -75,8 +48,7 @@ class SummonerAPITestCase(APITestCase):
         self.assertEqual(response.data, summoner.data)
 
     def test_delete_summoner(self):
-        summoner_name = GenerateData.get_random_string(7)
-        summoner = Summoner.objects.create(summoner_name)
+        summoner = SummonerFactory.create(fake_name)
         response = self.client.delete(
             reverse("summoner-detail", kwargs=dict(pk=summoner.pk))
         )
@@ -86,7 +58,7 @@ class SummonerAPITestCase(APITestCase):
     def test_list_summoners(self):
         expected_response_data = list()
         for _ in range(5):
-            summoner = SummonerSerializer(self.create_summoner())
+            summoner = SummonerSerializer(SummonerFactory.create(fake.name()))
             expected_response_data.append(summoner.data)
         self.assertEqual(Summoner.objects.count(), 5)
         response = self.client.get(reverse("summoner-list"), format="json")
