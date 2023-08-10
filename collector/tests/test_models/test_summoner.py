@@ -13,8 +13,12 @@ class SummonerTestCase(TestCase):
         self.lol_api = LeagueOfLegendsAPI()
         self.factory = SummonerFactory
 
-    @patch.object( requests, "get", return_value=GenerateData.build_lol_api_summoner_response("test"))
-    def test_create_summoner_by_name(self,mocked):
+    @patch.object(
+        requests,
+        "get",
+        return_value=GenerateData.build_lol_api_summoner_response("test"),
+    )
+    def test_create_summoner_by_name(self, mocked):
         summoner = Summoner.objects.create_summoner_by_name(name="test")
         requests.get.assert_called_with(
             f"https://br1.api.riotgames.com/lol/summoner/v4/summoners/by-name/test",

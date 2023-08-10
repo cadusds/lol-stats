@@ -90,18 +90,21 @@ class LeagueOfLegendsAPITestCase(TestCase):
     def order_list_by_match_id(self, dct):
         return dct["match_id"]
 
-    @patch.object(requests,"get", return_value=mock_response_error())
-    def test_get_match_stats_error(self,mocked):
+    @patch.object(requests, "get", return_value=mock_response_error())
+    def test_get_match_stats_error(self, mocked):
         with self.assertRaises(Exception) as cmd:
             self.lol_api.get_match_stats("BR_2000000000")
         mocked.assert_called()
-        self.assertEqual(str(cmd.exception),f"Request Error\nstatus_code:400")
-    
-    @patch.object(requests, "get", return_value=GenerateData.build_lol_api_match_stats_response("BR1_2000000000"))
-    def test_get_match_stats(self,mocked):
+        self.assertEqual(str(cmd.exception), f"Request Error\nstatus_code:400")
+
+    @patch.object(
+        requests,
+        "get",
+        return_value=GenerateData.build_lol_api_match_stats_response("BR1_2000000000"),
+    )
+    def test_get_match_stats(self, mocked):
         response = self.lol_api.get_match_stats("BR1_2000000000")
-        self.assertIsInstance(response,dict)
-        self.assertIsInstance(response['metadata']['participants'],list)
-        self.assertEqual(response['metadata']['matchId'],"BR1_2000000000")
-        self.assertIsInstance(response["info"],dict)
-        
+        self.assertIsInstance(response, dict)
+        self.assertIsInstance(response["metadata"]["participants"], list)
+        self.assertEqual(response["metadata"]["matchId"], "BR1_2000000000")
+        self.assertIsInstance(response["info"], dict)
