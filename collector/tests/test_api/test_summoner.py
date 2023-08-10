@@ -30,12 +30,11 @@ class SummonerAPITestCase(APITestCase):
 
     @patch.object(requests, "get", return_value=GenerateData.build_lol_api_summoner_response(fake_name))
     def test_create_summoner_already_exists(self,mocked):
-        summoner_name = fake.name()
-        self.factory.create(name=summoner_name)
+        self.factory.create(name=fake_name)
         url = reverse("summoner-list")
-        response = self.client.post(url, {"name": summoner_name})
+        response = self.client.post(url, {"name": fake_name})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        expected_data = dict(error=f"The summoner {summoner_name} already exists.")
+        expected_data = dict(error=f"The summoner {fake_name} already exists.")
         self.assertEqual(response.data, expected_data)
 
     @patch.object(requests, "get", return_value=GenerateData.build_lol_api_summoner_response(fake_name))
