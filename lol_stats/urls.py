@@ -21,7 +21,9 @@ from collector.api import views
 
 router = routers.DefaultRouter()
 router.register(r"summoners", views.SummonerViewSet, basename="summoner")
-router.register(r"summoner_matchs", views.SummonerMatchViewSet, basename="summoner_match")
+router.register(
+    r"summoner_matchs", views.SummonerMatchViewSet, basename="summoner_match"
+)
 router.register(r"matchs", views.MatchViewSet, basename="match")
 
 urlpatterns = [

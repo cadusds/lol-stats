@@ -33,7 +33,7 @@ class MatchManager(models.Manager):
 
 
 class Match(models.Model):
-    game_id = models.CharField(max_length=250,primary_key=True)
+    game_id = models.CharField(max_length=250, primary_key=True)
     game_creation = models.CharField(max_length=250, null=True)
     game_start_timestamp = models.CharField(max_length=250, null=True)
     game_end_timestamp = models.CharField(max_length=250, null=True)
@@ -59,7 +59,7 @@ class SummonerMatchManager(models.Manager):
             dct["summoner"] = summoner
             match_id = dct["match_id"]
             dct["game_id"] = match_id.replace("BR1_", "")
-            match = Match.objects.create(game_id=dct['game_id'])
+            match = Match.objects.create(game_id=dct["game_id"])
             del dct["game_id"]
             dct["game"] = match
             self.update_or_create(**dct)

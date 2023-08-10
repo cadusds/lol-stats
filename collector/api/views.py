@@ -43,11 +43,10 @@ class SummonerMatchViewSet(viewsets.ModelViewSet):
         matchs = models.SummonerMatch.objects.create_all_matchs_by_puuid(summoner.puuid)
         data = list()
         for match in matchs:
-            match = self.serializer_class(
-                match, context=dict(request=request)
-            ).data
+            match = self.serializer_class(match, context=dict(request=request)).data
             data.append(match)
         return Response(data={"data": data}, status=status.HTTP_201_CREATED)
+
 
 class MatchViewSet(viewsets.ModelViewSet):
     queryset = models.Match.objects.all()
