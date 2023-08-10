@@ -5,6 +5,7 @@ import dotenv
 
 dotenv.load_dotenv()
 
+
 class LeagueOfLegendsAPI:
     BASE_ENDPOINT = "https://{route}.api.riotgames.com/lol/"
     API_KEY = os.environ.get("LOL_API_TOKEN")
@@ -60,9 +61,11 @@ class LeagueOfLegendsAPI:
             data["start"] += 100
         return [{"summoner": puuid, "match_id": match_id} for match_id in response]
 
-    def get_match_stats(self,match_id) -> dict:
-        endpoint = self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/{match_id}"
-        response = requests.get(endpoint,headers=self.headers)
+    def get_match_stats(self, match_id) -> dict:
+        endpoint = (
+            self.BASE_ENDPOINT.format(route="americas") + f"match/v5/matches/{match_id}"
+        )
+        response = requests.get(endpoint, headers=self.headers)
         match response.ok:
             case True:
                 return response.json()
