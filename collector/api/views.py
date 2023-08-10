@@ -14,7 +14,7 @@ class SummonerViewSet(viewsets.ModelViewSet):
     def create(self, request):
         summoner_name = request.data["name"]
         try:
-            summoner = models.Summoner.objects.create(summoner_name)
+            summoner = models.Summoner.objects.create_summoner_by_name(summoner_name)
         except IntegrityError:
             return Response(
                 {"error": f"The summoner {summoner_name} already exists."},
