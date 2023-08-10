@@ -27,13 +27,13 @@ class SummonerMatchAPITestCase(APITestCase):
     def test_create(self, mocked):
         summoner_name = "SummonerTest"
         SummonerFactory.create(name=summoner_name)
-        url = reverse("match-list")
+        url = reverse("summoner_match-list")
         response = self.client.post(url, data={"name": summoner_name})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(SummonerMatch.objects.count(), 100)
 
     def test_create_when_summoner_not_exists(self):
-        url = reverse("match-list")
+        url = reverse("summoner_match-list")
         response = self.client.post(url, data={"name": "test"})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(

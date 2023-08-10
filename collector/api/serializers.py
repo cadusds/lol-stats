@@ -16,7 +16,13 @@ class SummonerSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 
-class MatchsSerializer(serializers.HyperlinkedModelSerializer):
+class SummonerMatchSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.SummonerMatch
-        fields = ["summoner", "match_id"]
+        fields = ["summoner", "game"]
+
+
+class MatchSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Match
+        fields = "__all__"

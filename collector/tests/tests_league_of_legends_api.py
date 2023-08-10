@@ -105,3 +105,4 @@ class LeagueOfLegendsAPITestCase(TestCase):
     def test_get_match_stats(self, mocked):
         response = self.lol_api.get_match_stats("BR1_2000000000")
         self.assertIsInstance(response, dict)
+        self.assertEqual(list(response.keys()), ["game_duration", "game_id"])

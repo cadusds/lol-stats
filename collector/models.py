@@ -21,6 +21,36 @@ class Summoner(models.Model):
     objects = SummonerManager()
 
 
+class MatchManager(models.Manager):
+    def get_match_stats_data(self, match_data: dict) -> dict:
+        fields = [x.name for x in Match._meta.fields if x.name != "game"]
+        dct = {x: match_data[x] for x in fields}
+        return dct
+
+    def create_match_object_with_match_data(self, match_data: dict) -> models.Model:
+        data = self.get_match_stats_data(match_data)
+        return self.update_or_create(**data)
+
+
+class Match(models.Model):
+    game_id = models.CharField(max_length=250,primary_key=True)
+    game_creation = models.CharField(max_length=250, null=True)
+    game_start_timestamp = models.CharField(max_length=250, null=True)
+    game_end_timestamp = models.CharField(max_length=250, null=True)
+    game_duration = models.CharField(max_length=250, null=True)
+    game_mode = models.CharField(max_length=250, null=True)
+    game_name = models.CharField(max_length=250, null=True)
+    game_type = models.CharField(max_length=250, null=True)
+    game_version = models.CharField(max_length=250, null=True)
+    map_id = models.IntegerField(null=True)
+    platform_id = models.CharField(max_length=250, null=True)
+    queue_id = models.IntegerField(null=True)
+    teams = models.JSONField(null=True)
+    tournament_code = models.CharField(max_length=250, null=True)
+
+    objects = MatchManager()
+
+
 class SummonerMatchManager(models.Manager):
     def create_all_matchs_by_puuid(self, puuid):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
@@ -29,6 +59,9 @@ class SummonerMatchManager(models.Manager):
             dct["summoner"] = summoner
             match_id = dct["match_id"]
             dct["game_id"] = match_id.replace("BR1_", "")
+            match = Match.objects.create(game_id=dct['game_id'])
+            del dct["game_id"]
+            dct["game"] = match
             self.update_or_create(**dct)
         return SummonerMatch.objects.filter(summoner=summoner)
 
@@ -61,7 +94,7 @@ class SummonerMatchManager(models.Manager):
 class SummonerMatch(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
     match_id = models.CharField(max_length=250)
-    game_id = models.CharField(max_length=10)
+    game = models.ForeignKey(Match, on_delete=models.CASCADE, null=True)
 
     objects = SummonerMatchManager()
 
@@ -71,36 +104,6 @@ class SummonerMatch(models.Model):
                 fields=["summoner", "match_id"], name="unique_match"
             )
         ]
-
-
-class MatchManager(models.Manager):
-    def get_match_stats_data(self, match_data: dict) -> dict:
-        fields = [x.name for x in Match._meta.fields if x.name != "id"]
-        dct = {x: match_data[x] for x in fields}
-        return dct
-
-    def create_match_object_with_match_data(self, match_data: dict) -> models.Model:
-        data = self.get_match_stats_data(match_data)
-        return self.update_or_create(**data)
-
-
-class Match(models.Model):
-    game_id = models.CharField(max_length=250)
-    game_creation = models.CharField(max_length=250)
-    game_start_timestamp = models.CharField(max_length=250)
-    game_end_timestamp = models.CharField(max_length=250)
-    game_duration = models.CharField(max_length=250)
-    game_mode = models.CharField(max_length=250)
-    game_name = models.CharField(max_length=250)
-    game_type = models.CharField(max_length=250)
-    game_version = models.CharField(max_length=250)
-    map_id = models.IntegerField()
-    platform_id = models.CharField(max_length=250)
-    queue_id = models.IntegerField()
-    teams = models.JSONField()
-    tournament_code = models.CharField(max_length=250)
-
-    objects = MatchManager()
 
 
 class MatchParticipantBasicStatsManager(models.Manager):
@@ -127,7 +130,7 @@ class MatchParticipantBasicStatsManager(models.Manager):
 
 class MatchParticipantBasicStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
-    game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
+    game = models.ForeignKey(Match, on_delete=models.CASCADE, null=False)
     team_position = models.CharField(max_length=200)
     deaths = models.IntegerField()
     assists = models.IntegerField()
@@ -168,7 +171,7 @@ class MatchParticipantStatsManager(models.Manager):
 
 class MatchParticipantStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
-    game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
+    game = models.ForeignKey(Match, on_delete=models.CASCADE, null=False)
     champion_name = models.CharField(max_length=250)
     total_damage_dealt = models.IntegerField()
     total_damage_dealt_to_champions = models.IntegerField()
@@ -219,7 +222,7 @@ class MatchParticipantChampionStatsManager(models.Manager):
 
 class MatchParticipantChampionStats(models.Model):
     summoner = models.ForeignKey(Summoner, on_delete=models.CASCADE, null=False)
-    game_id = models.ForeignKey(SummonerMatch, on_delete=models.CASCADE, null=False)
+    game = models.ForeignKey(Match, on_delete=models.CASCADE, null=False)
     champion_name = models.CharField(max_length=200)
     champ_experience = models.IntegerField()
     champ_level = models.IntegerField()

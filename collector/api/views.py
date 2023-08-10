@@ -28,7 +28,7 @@ class SummonerViewSet(viewsets.ModelViewSet):
 
 class SummonerMatchViewSet(viewsets.ModelViewSet):
     queryset = models.SummonerMatch.objects.all()
-    serializer_class = serializers.MatchsSerializer
+    serializer_class = serializers.SummonerMatchSerializer
     permission_classes = [permissions.AllowAny]
 
     def create(self, request):
@@ -43,8 +43,13 @@ class SummonerMatchViewSet(viewsets.ModelViewSet):
         matchs = models.SummonerMatch.objects.create_all_matchs_by_puuid(summoner.puuid)
         data = list()
         for match in matchs:
-            match = serializers.MatchsSerializer(
+            match = self.serializer_class(
                 match, context=dict(request=request)
             ).data
             data.append(match)
         return Response(data={"data": data}, status=status.HTTP_201_CREATED)
+
+class MatchViewSet(viewsets.ModelViewSet):
+    queryset = models.Match.objects.all()
+    serializer_class = serializers.MatchSerializer
+    permission_classes = [permissions.AllowAny]

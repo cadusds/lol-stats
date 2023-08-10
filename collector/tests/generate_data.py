@@ -34,7 +34,7 @@ class GenerateData:
                 "matchId": match_id,
                 "participants": [cls.get_random_string(78) for _ in range(1, 10)],
             },
-            "info": {},
+            "info": {"gameDuration": "1029102809", "gameId": "10192810787"},
         }
 
     @classmethod
