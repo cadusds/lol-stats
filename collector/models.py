@@ -59,7 +59,7 @@ class SummonerMatchManager(models.Manager):
             dct["summoner"] = summoner
             match_id = dct["match_id"]
             dct["game_id"] = match_id.replace("BR1_", "")
-            match = Match.objects.create(game_id=dct["game_id"])
+            match, _ = Match.objects.get_or_create(game_id=dct["game_id"])
             del dct["game_id"]
             dct["game"] = match
             self.update_or_create(**dct)
@@ -110,22 +110,26 @@ class MatchParticipantBasicStatsManager(models.Manager):
     def get_match_participant_basic_stats_data(
         self, match_data: dict, puuid: str
     ) -> dict:
-        match_data = list(
+        participant_stats = list(
             filter(
                 lambda participant: participant["puuid"] == puuid,
                 match_data["participants"],
             )
         )[0]
-        fields = [x.name for x in MatchParticipantBasicStats._meta.fields if x != "id"]
-        dct = {x: match_data[x] for x in fields}
+        participant_stats = LeagueOfLegendsAPI._format_keys(participant_stats)
+        fields = [x.name for x in MatchParticipantBasicStats._meta.fields if x.name not in ["id","summoner","game"]]
+        match = Match.objects.get(game_id=match_data['game_id'])
+        summoner = Summoner.objects.get(puuid=puuid)
+        dct = {x: participant_stats[x] for x in fields}
+        dct['summoner'] = summoner
+        dct['game'] = match
         return dct
 
     def create_match_participant_basic_stats_object_with_match_data(
         self, match_data: dict, puuid: str
     ) -> models.Model:
         data = self.get_match_participant_basic_stats_data(match_data, puuid)
-        obj, _ = self.update_or_create(**data)
-        return obj
+        return self.update_or_create(**data)
 
 
 class MatchParticipantBasicStats(models.Model):
@@ -157,7 +161,7 @@ class MatchParticipantStatsManager(models.Manager):
                 match_data["participants"],
             )
         )[0]
-        fields = [x.name for x in MatchParticipantStats._meta.fields if x != "id"]
+        fields = [x.name for x in MatchParticipantStats._meta.fields if x.name != "id"]
         dct = {x: data[x] for x in fields}
         return dct
 

@@ -69,9 +69,11 @@ class LeagueOfLegendsAPI:
             case False:
                 raise Exception(f"Request Error\nstatus_code:{response.status_code}")
 
-    def _format_keys(self, dct: dict) -> dict:
-        return {self._camel_to_snake_case(k): v for k, v in dct.items()}
+    @classmethod
+    def _format_keys(cls, dct: dict) -> dict:
+        return {cls._camel_to_snake_case(k): v for k, v in dct.items()}
 
-    def _camel_to_snake_case(self, str_camel_case: str) -> str:
+    @classmethod
+    def _camel_to_snake_case(cls, str_camel_case: str) -> str:
         snake_case_string = re.sub("([A-Z])", r"_\1", str_camel_case).lower()
         return snake_case_string
