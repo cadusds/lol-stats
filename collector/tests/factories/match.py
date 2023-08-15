@@ -22,8 +22,8 @@ class MatchFactory(factory.django.DjangoModelFactory):
     game_name = factory.fuzzy.FuzzyText(length=10)
     game_type = factory.fuzzy.FuzzyText(length=10)
     game_version = factory.fuzzy.FuzzyText(length=10)
-    map_id = factory.fuzzy.FuzzyInteger(low=2000,high=3000)
+    map_id = factory.fuzzy.FuzzyInteger(low=2000, high=3000)
     platform_id = factory.fuzzy.FuzzyText(length=10)
-    queue_id = factory.fuzzy.FuzzyInteger(low=2000,high=3000)
+    queue_id = factory.fuzzy.FuzzyInteger(low=2000, high=3000)
     teams = {}
     tournament_code = factory.fuzzy.FuzzyText(length=10)

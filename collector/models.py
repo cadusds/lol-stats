@@ -73,10 +73,11 @@ class SummonerMatchManager(models.Manager):
         )
         with Thread(max_workers=4) as executor:
             list_data = list(executor.map(LeagueOfLegendsAPI().get_match_stats, matchs))
-        results = list()
         for data in list_data:
-            results.append(Match.objects.create_match_object_with_match_data(data))
-        return results
+            Match.objects.create_match_object_with_match_data(data)
+            MatchParticipantBasicStats.objects.create_match_participant_basic_stats_object_with_match_data(
+                data
+            )
         # executor.map(
         #     lambda data: MatchParticipantBasicStats.objects.create_match_participant_basic_stats_object_with_match_data(
         #         data, puuid
@@ -117,12 +118,16 @@ class MatchParticipantBasicStatsManager(models.Manager):
             )
         )[0]
         participant_stats = LeagueOfLegendsAPI._format_keys(participant_stats)
-        fields = [x.name for x in MatchParticipantBasicStats._meta.fields if x.name not in ["id","summoner","game"]]
-        match = Match.objects.get(game_id=match_data['game_id'])
+        fields = [
+            x.name
+            for x in MatchParticipantBasicStats._meta.fields
+            if x.name not in ["id", "summoner", "game"]
+        ]
+        match = Match.objects.get(game_id=match_data["game_id"])
         summoner = Summoner.objects.get(puuid=puuid)
         dct = {x: participant_stats[x] for x in fields}
-        dct['summoner'] = summoner
-        dct['game'] = match
+        dct["summoner"] = summoner
+        dct["game"] = match
         return dct
 
     def create_match_participant_basic_stats_object_with_match_data(
