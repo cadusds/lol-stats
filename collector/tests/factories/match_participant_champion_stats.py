@@ -8,7 +8,7 @@ from .match import MatchFactory
 class MatchParticipantChampionStatsFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.MatchParticipantChampionStats
-    
+
     summoner = factory.SubFactory(SummonerFactory)
     game = factory.SubFactory(MatchFactory)
     champion_name = factory.Faker("name")

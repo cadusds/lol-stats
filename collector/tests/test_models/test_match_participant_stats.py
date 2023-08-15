@@ -23,7 +23,10 @@ class MatchParticipanttatsTestCase(TestCase):
         summoner = SummonerFactory.create(puuid=self.puuid)
         match_data = self.lol_api.get_match_stats("BR1_2000000000")
         MatchFactory.create(game_id=match_data["game_id"])
-        _, created= self.model.objects.create_match_participant_stats_object_with_match_data(
+        (
+            _,
+            created,
+        ) = self.model.objects.create_match_participant_stats_object_with_match_data(
             match_data, summoner.puuid
         )
         self.assertTrue(created)

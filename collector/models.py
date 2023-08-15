@@ -167,11 +167,15 @@ class MatchParticipantStatsManager(models.Manager):
             )
         )[0]
         data = LeagueOfLegendsAPI._format_keys(data)
-        fields = [x.name for x in MatchParticipantStats._meta.fields if x.name not in ["id","summoner","game"]]
+        fields = [
+            x.name
+            for x in MatchParticipantStats._meta.fields
+            if x.name not in ["id", "summoner", "game"]
+        ]
         dct = {x: data[x] for x in fields}
         match = Match.objects.get(game_id=match_data["game_id"])
         summoner = Summoner.objects.get(puuid=puuid)
-        dct["game"],dct["summoner"] = match,summoner
+        dct["game"], dct["summoner"] = match, summoner
         return dct
 
     def create_match_participant_stats_object_with_match_data(
@@ -179,7 +183,6 @@ class MatchParticipantStatsManager(models.Manager):
     ) -> models.Model:
         data = self.get_match_participant_stats_data(match_data, puuid)
         return self.update_or_create(**data)
-        
 
 
 class MatchParticipantStats(models.Model):
@@ -226,11 +229,23 @@ class MatchParticipantChampionStatsManager(models.Manager):
                 match_data["participants"],
             )
         )[0]
+        data = LeagueOfLegendsAPI._format_keys(data)
         fields = [
-            x.name for x in MatchParticipantChampionStats._meta.fields if x != "id"
+            x.name
+            for x in MatchParticipantChampionStats._meta.fields
+            if x.name not in ["id", "summoner", "game"]
         ]
         dct = {x: data[x] for x in fields}
+        match = Match.objects.get(game_id=match_data["game_id"])
+        summoner = Summoner.objects.get(puuid=puuid)
+        dct["game"], dct["summoner"] = match, summoner
         return dct
+
+    def create_match_participant_champion_stats_object_with_match_data(
+        self, match_data: dict, puuid: str
+    ) -> models.Model:
+        data = self.get_match_participant_champion_stats_data(match_data, puuid)
+        return self.update_or_create(**data)
 
 
 class MatchParticipantChampionStats(models.Model):
@@ -251,3 +266,5 @@ class MatchParticipantChampionStats(models.Model):
     spell2_casts = models.IntegerField()
     spell3_casts = models.IntegerField()
     spell4_casts = models.IntegerField()
+
+    objects = MatchParticipantChampionStatsManager()
