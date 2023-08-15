@@ -76,20 +76,15 @@ class SummonerMatchManager(models.Manager):
         for data in list_data:
             Match.objects.create_match_object_with_match_data(data)
             MatchParticipantBasicStats.objects.create_match_participant_basic_stats_object_with_match_data(
-                data
+                data, summoner.puuid
             )
-        # executor.map(
-        #     lambda data: MatchParticipantBasicStats.objects.create_match_participant_basic_stats_object_with_match_data(
-        #         data, puuid
-        #     ),
-        #     list_data,
-        # )
-        # executor.map(
-        #     lambda data: MatchParticipantStats.objects.create_match_participant_stats_object_with_match_data(
-        #         data, puuid
-        #     ),
-        #     matchs_data,
-        # )
+            MatchParticipantChampionStats.objects.create_match_participant_champion_stats_object_with_match_data(
+                data, summoner.puuid
+            )
+            MatchParticipantStats.objects.create_match_participant_stats_object_with_match_data(
+                data, summoner.puuid
+            )
+        return {"status": "ok"}
 
 
 class SummonerMatch(models.Model):
