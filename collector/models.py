@@ -166,16 +166,20 @@ class MatchParticipantStatsManager(models.Manager):
                 match_data["participants"],
             )
         )[0]
-        fields = [x.name for x in MatchParticipantStats._meta.fields if x.name != "id"]
+        data = LeagueOfLegendsAPI._format_keys(data)
+        fields = [x.name for x in MatchParticipantStats._meta.fields if x.name not in ["id","summoner","game"]]
         dct = {x: data[x] for x in fields}
+        match = Match.objects.get(game_id=match_data["game_id"])
+        summoner = Summoner.objects.get(puuid=puuid)
+        dct["game"],dct["summoner"] = match,summoner
         return dct
 
     def create_match_participant_stats_object_with_match_data(
         self, match_data: dict, puuid: str
     ) -> models.Model:
         data = self.get_match_participant_stats_data(match_data, puuid)
-        obj, _ = self.update_or_create(**data)
-        return obj
+        return self.update_or_create(**data)
+        
 
 
 class MatchParticipantStats(models.Model):
@@ -197,9 +201,9 @@ class MatchParticipantStats(models.Model):
     true_damage_dealt = models.IntegerField()
     true_damage_dealt_to_champions = models.IntegerField()
     true_damage_taken = models.IntegerField()
-    turrent_kills = models.IntegerField()
-    turrent_takes = models.IntegerField()
-    turrents_lost = models.IntegerField()
+    turret_kills = models.IntegerField()
+    turret_takedowns = models.IntegerField()
+    turrets_lost = models.IntegerField()
     vision_score = models.IntegerField()
     vision_wards_bought_in_game = models.IntegerField()
     wards_killed = models.IntegerField()
