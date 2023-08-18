@@ -13,7 +13,7 @@ class SummonerMatchAPITestCase(APITestCase):
         self.maxDiff = None
 
     def mock_get_all_matchs_by_summoner_puuid(puuid):
-        response = GenerateData.build_lol_api_matchs_response(True)
+        response = GenerateData.build_lol_api_matchs_response(True,10)
         summoner = Summoner.objects.filter(puuid=puuid)
         return [
             {"summoner": summoner, "match_id": match_id} for match_id in response.json()
@@ -30,7 +30,7 @@ class SummonerMatchAPITestCase(APITestCase):
         url = reverse("summoner_match-list")
         response = self.client.post(url, data={"name": summoner_name})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(SummonerMatch.objects.count(), 100)
+        self.assertEqual(SummonerMatch.objects.count(), 10)
 
     def test_create_when_summoner_not_exists(self):
         url = reverse("summoner_match-list")

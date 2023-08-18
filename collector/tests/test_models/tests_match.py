@@ -10,7 +10,7 @@ class MatchTestCase(TestCase):
     @patch.object(
         LeagueOfLegendsAPI,
         "get_match_stats",
-        return_value=GenerateData.build_lol_api_get_match_stats_method_response(),
+        return_value=GenerateData.build_lol_api_get_match_stats_method_response("BR1_2000000000"),
     )
     def test_create_match_object_with_match_data(self, mocked):
         match_data = LeagueOfLegendsAPI().get_match_stats("BR1_2000000000")
@@ -21,7 +21,7 @@ class MatchTestCase(TestCase):
     @patch.object(
         LeagueOfLegendsAPI,
         "get_match_stats",
-        return_value=GenerateData.build_lol_api_get_match_stats_method_response(),
+        return_value=GenerateData.build_lol_api_get_match_stats_method_response("BR1_2000000000"),
     )
     def test_get_match_stats_data(self, mocked):
         match_data = LeagueOfLegendsAPI().get_match_stats("BR1_2000000000")
