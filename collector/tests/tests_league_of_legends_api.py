@@ -55,7 +55,7 @@ class LeagueOfLegendsAPITestCase(TestCase):
 
     def mock_response_to_get_matchs():
         response = GenerateData.build_lol_api_matchs_response
-        return [response(True), response()]
+        return [response(), response(True)]
 
     @patch.object(requests, "get", side_effect=mock_response_to_get_matchs())
     def test_get_all_matchs_by_summoner_puuid_with_more_than_one_responses(
@@ -66,8 +66,8 @@ class LeagueOfLegendsAPITestCase(TestCase):
         self.assertIsInstance(response, list)
         list_match_ids = self.list_all_matchs_ids(
             [
-                GenerateData.build_lol_api_matchs_response(True),
                 GenerateData.build_lol_api_matchs_response(),
+                GenerateData.build_lol_api_matchs_response(True),
             ]
         )
         expected_response = [{"puuid": puuid, "match_id": x} for x in list_match_ids]
@@ -105,6 +105,4 @@ class LeagueOfLegendsAPITestCase(TestCase):
     def test_get_match_stats(self, mocked):
         response = self.lol_api.get_match_stats("BR1_2000000000")
         self.assertIsInstance(response, dict)
-        self.assertIsInstance(response["metadata"]["participants"], list)
-        self.assertEqual(response["metadata"]["matchId"], "BR1_2000000000")
-        self.assertIsInstance(response["info"], dict)
+        self.assertEqual(list(response.keys()), ["game_duration", "game_id"])
