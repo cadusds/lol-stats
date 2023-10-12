@@ -41,6 +41,7 @@ class SummonerMatchViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         matchs = models.SummonerMatch.objects.create_all_matchs_by_puuid(summoner.puuid)
+        models.SummonerMatch.objects.create_all_matchs_stats_by_puuid(summoner.puuid)
         data = list()
         for match in matchs:
             match = self.serializer_class(match, context=dict(request=request)).data
@@ -51,4 +52,22 @@ class SummonerMatchViewSet(viewsets.ModelViewSet):
 class MatchViewSet(viewsets.ModelViewSet):
     queryset = models.Match.objects.all()
     serializer_class = serializers.MatchSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class MatchParticipantBasicStatsViewSet(viewsets.ModelViewSet):
+    queryset = models.MatchParticipantBasicStats.objects.all()
+    serializer_class = serializers.MatchParticipantBasicStatsSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class MatchParticipantChampionStatsViewSet(viewsets.ModelViewSet):
+    queryset = models.MatchParticipantChampionStats.objects.all()
+    serializer_class = serializers.MatchParticipantsChampionStatsSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class MatchParticipantStatsViewSet(viewsets.ModelViewSet):
+    queryset = models.MatchParticipantStats.objects.all()
+    serializer_class = serializers.MatchParticipantStatsSerializer
     permission_classes = [permissions.AllowAny]

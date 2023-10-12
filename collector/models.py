@@ -1,3 +1,4 @@
+import time
 from django.db import models
 from collector.api.league_of_legends_api import LeagueOfLegendsAPI
 from concurrent.futures import ThreadPoolExecutor as Thread
@@ -23,13 +24,13 @@ class Summoner(models.Model):
 
 class MatchManager(models.Manager):
     def get_match_stats_data(self, match_data: dict) -> dict:
-        fields = [x.name for x in Match._meta.fields if x.name != "game"]
+        fields = [x.name for x in Match._meta.fields if x.name != "game_id"]
         dct = {x: match_data[x] for x in fields}
         return dct
 
     def create_match_object_with_match_data(self, match_data: dict) -> models.Model:
         data = self.get_match_stats_data(match_data)
-        return self.update_or_create(**data)
+        return self.update_or_create(game_id=match_data["game_id"], defaults=data)
 
 
 class Match(models.Model):
@@ -52,7 +53,7 @@ class Match(models.Model):
 
 
 class SummonerMatchManager(models.Manager):
-    def create_all_matchs_by_puuid(self, puuid):
+    def create_all_matchs_by_puuid(self, puuid: str):
         matchs_data = LeagueOfLegendsAPI().get_all_matchs_by_summoner_puuid(puuid)
         summoner = Summoner.objects.get(puuid=puuid)
         for dct in matchs_data:
@@ -65,26 +66,50 @@ class SummonerMatchManager(models.Manager):
             self.update_or_create(**dct)
         return SummonerMatch.objects.filter(summoner=summoner)
 
-    def create_all_matchs_stats_by_puuid(self, puuid):
+    def create_all_matchs_stats_by_puuid(self, puuid: str):
         summoner = Summoner.objects.get(puuid=puuid)
         summoner_matchs = SummonerMatch.objects.filter(summoner=summoner)
         matchs = list(
             map(lambda summoner_match: summoner_match.match_id, summoner_matchs)
         )
-        with Thread(max_workers=4) as executor:
-            list_data = list(executor.map(LeagueOfLegendsAPI().get_match_stats, matchs))
-        for data in list_data:
-            Match.objects.create_match_object_with_match_data(data)
+        matchs = self._filter_matchs_without_stats(match_ids=matchs)[:100]
+        if len(matchs) == 0:
+            raise Exception("No Matchs without stats.")
+        for match in matchs:
+            match_data = LeagueOfLegendsAPI().get_match_stats(match)
+            Match.objects.create_match_object_with_match_data(match_data)
             MatchParticipantBasicStats.objects.create_match_participant_basic_stats_object_with_match_data(
-                data, summoner.puuid
+                match_data, summoner.puuid
             )
             MatchParticipantChampionStats.objects.create_match_participant_champion_stats_object_with_match_data(
-                data, summoner.puuid
+                match_data, summoner.puuid
             )
             MatchParticipantStats.objects.create_match_participant_stats_object_with_match_data(
-                data, summoner.puuid
+                match_data, summoner.puuid
             )
+            time.sleep(1)
         return {"status": "ok"}
+
+    def _filter_matchs_without_stats(self, match_ids: list) -> list:
+        matchs_without_stats = [
+            "BR1_" + x.game_id
+            for x in Match.objects.filter(
+                game_creation__isnull=True,
+                game_start_timestamp__isnull=True,
+                game_end_timestamp__isnull=True,
+                game_duration__isnull=True,
+                game_mode__isnull=True,
+                game_name__isnull=True,
+                game_type__isnull=True,
+                game_version__isnull=True,
+                map_id__isnull=True,
+                platform_id__isnull=True,
+                queue_id__isnull=True,
+                teams__isnull=True,
+                tournament_code__isnull=True,
+            )
+        ]
+        return [match_id for match_id in match_ids if match_id in matchs_without_stats]
 
 
 class SummonerMatch(models.Model):

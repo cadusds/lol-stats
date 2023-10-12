@@ -21,8 +21,10 @@ class GenerateData:
         )
 
     @classmethod
-    def _build_match_response_data(cls, last_response: bool = False, response_lenght: int = None):
-        match [last_response,response_lenght]:
+    def _build_match_response_data(
+        cls, last_response: bool = False, response_lenght: int = None
+    ):
+        match [last_response, response_lenght]:
             case [False, None]:
                 return ["BR1_" + str(x) for x in range(2000000000, 2000000100)]
             case [True, None]:
@@ -53,8 +55,12 @@ class GenerateData:
         return response
 
     @classmethod
-    def build_lol_api_matchs_response(cls, last_response:bool=False,response_lenght:int=None):
-        data = cls._build_match_response_data(last_response=last_response,response_lenght=response_lenght)
+    def build_lol_api_matchs_response(
+        cls, last_response: bool = False, response_lenght: int = None
+    ):
+        data = cls._build_match_response_data(
+            last_response=last_response, response_lenght=response_lenght
+        )
         response = requests.Response()
         response._content = json.dumps(data).encode("utf-8")
         return response
@@ -72,10 +78,10 @@ class GenerateData:
         return MockResponse()
 
     @classmethod
-    def build_lol_api_get_match_stats_method_response(cls,game_id:str):
+    def build_lol_api_get_match_stats_method_response(cls, game_id: str):
         absolute_dir = os.path.dirname(__file__)
         relative_path = "mocks/match_data.json"
-        game_id = game_id.replace("BR1_","")
+        game_id = game_id.replace("BR1_", "")
         with open(os.path.join(absolute_dir, relative_path)) as file:
             data = json.load(file)
             data["game_id"] = game_id

@@ -25,6 +25,21 @@ router.register(
     r"summoner_matchs", views.SummonerMatchViewSet, basename="summoner_match"
 )
 router.register(r"matchs", views.MatchViewSet, basename="match")
+router.register(
+    r"match_participant_stats",
+    views.MatchParticipantStatsViewSet,
+    basename="match_participants_stats",
+)
+router.register(
+    r"match_participant_basic_stats",
+    views.MatchParticipantBasicStatsViewSet,
+    basename="match_participants_basic_stats",
+)
+router.register(
+    r"match_participant_champion_stats",
+    views.MatchParticipantChampionStatsViewSet,
+    basename="match_participants_champion_stats",
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

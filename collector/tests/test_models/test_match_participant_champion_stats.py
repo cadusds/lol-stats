@@ -17,7 +17,9 @@ class MatchParticipantChampionStatsTestCase(TestCase):
     @patch.object(
         LeagueOfLegendsAPI,
         "get_match_stats",
-        return_value=GenerateData.build_lol_api_get_match_stats_method_response("BR1_2000000000"),
+        return_value=GenerateData.build_lol_api_get_match_stats_method_response(
+            "BR1_2000000000"
+        ),
     )
     def test_create_match_participant_champion_stats_object_with_match_data(
         self, mocked
